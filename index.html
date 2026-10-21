@@ -91,6 +91,9 @@ html,body{overflow-x:hidden!important;width:100%!important;max-width:100%!import
 .nav{grid-template-columns:repeat(5,minmax(0,1fr));overflow:hidden}
 .nav button{font-size:clamp(9px,2.5vw,12px);overflow-wrap:anywhere}
 .home-choices{display:grid;gap:12px;margin-top:16px}
+/* v2.2: slightly narrower, centered Home action cards only */
+.home-choices{width:94%;margin-inline:auto}
+
 .home-choices button{display:flex;align-items:center;gap:14px;width:100%;padding:19px 14px;border:1px solid #dce9e2;border-radius:17px;background:#f7faf8;text-align:left;color:#16372a}
 .home-choices button>span:nth-child(2){flex:1;min-width:0}.home-choices strong{display:block;font-size:19px}.home-choices small{display:block;color:#657c71;margin-top:5px;line-height:1.35;font-size:12px}.home-icon{display:grid;place-items:center;background:#dff2e6;color:#087c50;border-radius:12px;width:44px;height:44px;flex-shrink:0;font-size:24px}
 .selection-tools{position:fixed;z-index:20;bottom:calc(75px + env(safe-area-inset-bottom));left:12px;right:12px;display:flex;gap:8px;background:white;border:1px solid #cbded3;box-shadow:0 8px 30px #0002;border-radius:14px;padding:10px;max-width:560px;margin:auto}
@@ -126,12 +129,13 @@ html,body{overflow-x:hidden!important;overscroll-behavior-x:none;width:100%!impo
 .ideas-tree{margin-top:12px;min-width:0}.ideas-tree .tree-group{margin:0;min-width:0}.ideas-tree>.tree-group{margin:8px 0 14px;border-bottom:1px solid #edf1ee;padding-bottom:8px}
 .tree-row{--indent:clamp(20px,5.8vw,26px);display:flex;align-items:center;width:100%;min-width:0;max-width:100%;border:0;background:transparent;padding:0;margin:0;text-align:left;color:#22332b}
 .tree-folder{padding:2px 0}.tree-expand{display:grid;grid-template-columns:var(--indent) var(--indent) minmax(0,1fr);align-items:center;gap:0;flex:1;min-width:0;padding:8px 0 8px calc(var(--depth)*var(--indent));border:0;background:transparent;text-align:left;color:inherit}
-.tree-arrow{font-size:20px;color:#718078;line-height:1;text-align:center}.tree-icon{font-size:23px;color:var(--folder-color);font-weight:700;line-height:1;text-align:center}
+.tree-arrow{font-size:20px;color:#718078;line-height:1;text-align:center}.tree-icon{display:flex;align-items:center;justify-content:center;font-size:23px;color:var(--folder-color);font-weight:700;line-height:1;text-align:center}
 .tree-folder .tree-title{font-size:clamp(13px,calc(17px - var(--depth)*1.5px),17px);font-weight:650;overflow-wrap:anywhere;min-width:0;color:var(--folder-color);line-height:1.3}
 .tree-menu{flex:0 0 34px;border:0;background:transparent;color:#7b8580;font-size:24px;padding:6px 3px}.tree-count{font-size:11px;color:#8a9990;padding:0 9px}
 .tree-idea{padding:8px 6px 8px calc((var(--depth) + 2)*var(--indent));gap:9px;font-size:13px;line-height:1.35;cursor:pointer}
 .tree-doc{color:#7d8c86;font-size:17px;line-height:1;flex:0 0 17px}.tree-idea .tree-title{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:400;color:#34413d}
 .colour-palette{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:16px 0}.colour-palette button{background:none;border:0;display:grid;justify-items:center;gap:6px;color:#34413d;min-width:0}.colour-dot{width:46px;height:43px;border-radius:12px;display:grid;place-items:center;color:white;font-size:21px}
+.tick-folder-svg{width:22px;height:22px;display:block;flex:none}
 /* Header: remove dead space and show complete artwork without clipping. */
 .hero{height:auto!important;padding:calc(env(safe-area-inset-top) + 27px) 18px 0!important;overflow:hidden!important}
 .hero:after{content:""!important;display:block!important;position:relative!important;left:-18px!important;width:calc(100% + 36px)!important;height:clamp(106px,31vw,160px)!important;background:url("skyline.png") center bottom / 100% 100% no-repeat!important;}
@@ -179,7 +183,7 @@ function folderChildren(id){return db.folders.filter(f=>f.parentId===id)}
 const folderPalette=[['Sage','#83ac94'],['Purple','#9b74c9'],['Yellow','#c69b25'],['Blue','#579bcb'],['Pink','#d992ae'],['Orange','#d9945a'],['Teal','#56a9a3'],['Grey','#90969e']];
 function rootFolder(id){let f=db.folders.find(x=>x.id===id),seen=new Set();while(f&&f.parentId&&!seen.has(f.id)){seen.add(f.id);f=db.folders.find(x=>x.id===f.parentId)}return f}
 function folderColor(id){let f=rootFolder(id);return f?.color||'#83ac94'}
-function folderGlyph(){return '▱'}
+function folderGlyph(){return `<svg class="tick-folder-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.5 6.5a2 2 0 0 1 2-2h5.3l2.1 2.3h7.6a2 2 0 0 1 2 2v9.8a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2z" fill="currentColor" fill-opacity=".20" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round"/><path d="M2.7 9.5h18.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`}
 function ideaRows(folderId,depth=0){return db.ideas.filter(x=>x.folderId===folderId).map(i=>`<button class="tree-row tree-idea" style="--depth:${Math.min(depth,12)}" onclick="editIdea('${i.id}')"><span class="tree-doc">▤</span><span class="tree-title">${e(i.title||i.text.slice(0,70)||'Untitled Idea')}</span></button>`).join('')}
 function folderTree(parentId,depth=0){if(depth>20)return '';return folderChildren(parentId).map(f=>{let expanded=db.expandedFolders.includes(f.id),n=db.ideas.filter(x=>x.folderId===f.id).length,col=folderColor(f.id);return `<div class="tree-group"><div class="tree-row tree-folder" style="--depth:${Math.min(depth,12)};--folder-color:${col}"><button class="tree-expand" onclick="toggleFolder('${f.id}')" aria-label="${expanded?'Collapse':'Expand'} ${e(f.name)}"><span class="tree-arrow">${expanded?'⌄':'›'}</span><span class="tree-icon">${folderGlyph()}</span><span class="tree-title">${e(f.name)}</span></button><button class="tree-menu" onclick="folderMenu('${f.id}')" aria-label="Options for ${e(f.name)}">⋯</button></div>${expanded?`<div>${folderTree(f.id,depth+1)}${ideaRows(f.id,depth+1)}</div>`:''}</div>`}).join('')}
 function folderMenu(id){let f=db.folders.find(x=>x.id===id);if(!f)return;let root=!f.parentId;show(`<div class="sheethead"><h3>${e(f.name)}</h3><button class="text" onclick="tickCloseModal()">Close</button></div><div class="stack"><button onclick="tickCloseModal();newFolder('${id}')">＋ Add subfolder</button><button onclick="tickCloseModal();renameFolder('${id}')">Rename folder</button><button onclick="tickCloseModal();moveFolder('${id}')">Move folder</button>${root?`<button onclick="chooseFolderColor('${id}')">Change colour</button>`:''}<button class="danger" onclick="tickCloseModal();deleteFolder('${id}')">Delete folder</button></div>`)}
